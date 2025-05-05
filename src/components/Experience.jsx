@@ -9,6 +9,7 @@ import { CharacterController } from "./CharacterController";
 import { KanaSpots } from "./KanaSpots";
 import { Kicker } from "./Kicker";
 import { Stage } from "./Stage";
+
 export const Experience = () => {
   const { currentKana, lastWrongKana } = useGameStore((state) => ({
     currentKana: state.currentKana,
@@ -27,7 +28,6 @@ export const Experience = () => {
       />
 
       {/* BACKGROUND */}
-
       <Text
         position={[0, -0.92, 0]}
         fontSize={1.84}

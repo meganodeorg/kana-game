@@ -14,11 +14,12 @@ const MAX_VEL = 3;
 const RUN_VEL = 1.5;
 
 export const CharacterController = () => {
-  const { characterState, setCharacterState, gameState } = useGameStore(
+  const { characterState, setCharacterState, gameState, loseLife } = useGameStore(
     (state) => ({
       character: state.characterState,
       setCharacterState: state.setCharacterState,
       gameState: state.gameState,
+      loseLife: state.loseLife,
     })
   );
   const jumpPressed = useKeyboardControls((state) => state[Controls.jump]);
@@ -144,9 +145,7 @@ export const CharacterController = () => {
         onIntersectionEnter={({ other }) => {
           if (other.rigidBodyObject.name === "void") {
             resetPosition();
-            playAudio("fall", () => {
-              playAudio("ganbatte");
-            });
+            loseLife();
           }
         }}
       >

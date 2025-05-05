@@ -1,11 +1,13 @@
 import { gameStates, useGameStore } from "../store";
 
 export const Menu = () => {
-  const { startGame, gameState, goToMenu } = useGameStore((state) => ({
+  const { startGame, gameState, goToMenu, lives } = useGameStore((state) => ({
     startGame: state.startGame,
     gameState: state.gameState,
     goToMenu: state.goToMenu,
+    lives: state.lives,
   }));
+
   return (
     <>
       <div
@@ -31,13 +33,9 @@ export const Menu = () => {
         </button>
         <div>
           <p>
-            Made with 💙 by{" "}
-            <a href="https://youtube.com/@WawaSensei" target="_blank">
+            Forked from{" "}
+            <a href="https://github.com/wass08" target="_blank">
               Wawa Sensei
-            </a>
-            , 3D models from{" "}
-            <a href="https://instagram.com/belyakova.dsn" target="_blank">
-              Camilla
             </a>
           </p>
         </div>
@@ -47,13 +45,35 @@ export const Menu = () => {
           gameState !== gameStates.GAME_OVER ? "scores--hidden" : ""
         }`}
       >
-        <h1>Congratulations you are becoming a true master</h1>
-        <button
-          onClick={goToMenu}
-          disabled={gameState !== gameStates.GAME_OVER}
-        >
-          Play again
-        </button>
+        {lives <= 0 ? (
+          <>
+            <h1>Game Over!</h1>
+            <p>You lose all your lives.</p>
+            <div className="game-over-buttons">
+              <button onClick={() => startGame({ mode: "hiragana" })}>
+                Play again Hiragana
+              </button>
+              <button onClick={() => startGame({ mode: "katakana" })}>
+                Play again Katakana
+              </button>
+              <button onClick={goToMenu}>Back to Menu</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <h1>Congratulations!</h1>
+            <p>You have completed the lesson!</p>
+            <div className="game-over-buttons">
+              <button onClick={() => startGame({ mode: "hiragana" })}>
+                Play again Hiragana
+              </button>
+              <button onClick={() => startGame({ mode: "katakana" })}>
+                Play again Katakana
+              </button>
+              <button onClick={goToMenu}>Back to Menu</button>
+            </div>
+          </>
+        )}
       </div>
     </>
   );
