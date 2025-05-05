@@ -10,6 +10,7 @@ import { Leva } from "leva";
 import { Suspense, useMemo } from "react";
 import { Experience } from "./components/Experience";
 import { Menu } from "./components/Menu";
+import { LivesDisplay } from "./components/LivesDisplay";
 
 export const Controls = {
   forward: "forward",
@@ -36,6 +37,7 @@ function App() {
   return (
     <KeyboardControls map={map}>
       <Leva hidden />
+      <LivesDisplay />
       <Canvas shadows camera={{ position: [0, 20, 14], fov: 42 }}>
         <color attach="background" args={["#e3daf7"]} />
         <Suspense>
