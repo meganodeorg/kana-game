@@ -14,11 +14,19 @@ export default function Character(props) {
   const characterState = useGameStore((state) => state.characterState);
 
   useEffect(() => {
-    actions[characterState].reset().fadeIn(0.2).play();
-    return () => {
-      actions[characterState].fadeOut(0.2);
-    };
-  }, [characterState]);
+    // Kiểm tra xem action có tồn tại không trước khi sử dụng
+    const action = actions[characterState];
+    if (action) {
+      action.reset().fadeIn(0.2).play();
+      
+      return () => {
+        // Chỉ gọi fadeOut nếu action vẫn tồn tại và đang chạy
+        if (action.isRunning()) {
+          action.fadeOut(0.2);
+        }
+      };
+    }
+  }, [characterState, actions]);
 
   return (
     <group ref={group} {...props} dispose={null}>

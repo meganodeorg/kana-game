@@ -47,8 +47,10 @@ export const useGameStore = create(
     mode: "hiragana",
     gameState: gameStates.MENU,
     wrongAnswers: 0,
+    lives: 3,
+    maxLives: 3,
     startGame: ({ mode }) => {
-      const level = generateGameLevel({ nbStages: 5 });
+      const level = generateGameLevel({ nbStages: 10 });
       const currentKana = level[0].find((kana) => kana.correct);
       playAudio("start", () => {
         playAudio(`kanas/${currentKana.name}`);
@@ -60,6 +62,7 @@ export const useGameStore = create(
         gameState: gameStates.GAME,
         mode,
         wrongAnswers: 0,
+        lives: 3,
       });
     },
     nextStage: () => {
@@ -90,6 +93,25 @@ export const useGameStore = create(
         gameState: gameStates.MENU,
       });
     },
+    loseLife: () => {
+      set((state) => {
+        const newLives = state.lives - 1;
+        if (newLives <= 0) {
+          playAudio("fall", () => {
+            playAudio("fail");
+          });
+          return {
+            lives: 0,
+            gameState: gameStates.GAME_OVER,
+            currentStage: 0,
+            currentKana: null,
+            level: null,
+            lastWrongKana: null,
+          };
+        }
+        return { lives: newLives };
+      });
+    },
     kanaTouched: (kana) => {
       const currentKana = get().currentKana;
       if (currentKana.name === kana.name) {
@@ -99,10 +121,25 @@ export const useGameStore = create(
         playAudio(`kanas/${kana.name}`, () => {
           playAudio("fail");
         });
-        set((state) => ({
-          wrongAnswers: state.wrongAnswers + 1,
-          lastWrongKana: kana,
-        }));
+        set((state) => {
+          const newLives = state.lives - 1;
+          if (newLives <= 0) {
+            return {
+              lives: 0,
+              gameState: gameStates.GAME_OVER,
+              currentStage: 0,
+              currentKana: null,
+              level: null,
+              lastWrongKana: null,
+              wrongAnswers: state.wrongAnswers + 1,
+            };
+          }
+          return {
+            lives: newLives,
+            wrongAnswers: state.wrongAnswers + 1,
+            lastWrongKana: kana,
+          };
+        });
       }
     },
     // CHARACTER CONTROLLER

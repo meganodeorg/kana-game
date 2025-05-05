@@ -83,3 +83,51 @@ button:hover {
   cursor: pointer;
   color: #000000b3;
 }
+
+.lives-display {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+}
+
+.life-heart {
+  font-size: 2rem;
+  transition: all 0.3s ease;
+}
+
+.life-heart.inactive {
+  opacity: 0.3;
+  transform: scale(0.8);
+  filter: grayscale(1);
+}
+
+.life-heart.active {
+  animation: heartbeat 1s infinite;
+}
+
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.game-over-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.game-over-buttons button {
+  min-width: 250px;
+  background: rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.game-over-buttons button:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: scale(1.05);
+}
