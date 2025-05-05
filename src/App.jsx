@@ -11,8 +11,8 @@ import { Suspense, useMemo } from "react";
 import { Experience } from "./components/Experience";
 import { Menu } from "./components/Menu";
 import { LivesDisplay } from "./components/LivesDisplay";
-import { WagmiProvider } from "wagmi";
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { createConfig, WagmiProvider } from "wagmi";
+import { RainbowKitProvider, getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { config } from './config/wagmi';
 import '@rainbow-me/rainbowkit/styles.css';
@@ -21,7 +21,15 @@ import { ConnectPrompt } from './components/ConnectPrompt';
 import { useAccount } from 'wagmi';
 import styled from 'styled-components';
 
-const queryClient = new QueryClient();
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false
+    },
+  },
+});
 
 const GameContainer = styled.div`
   position: relative;
@@ -77,7 +85,6 @@ function GameContent() {
           </Canvas>
           <Loader />
           {progress === 100 && <Menu />}
-          <Menu />
         </KeyboardControls>
       )}
     </GameContainer>
