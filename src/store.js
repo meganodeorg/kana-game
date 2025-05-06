@@ -1,11 +1,13 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 import { kanas } from "./constants";
+import { web3Service } from "./services/web3Service";
 
 export const gameStates = {
   MENU: "MENU",
   GAME: "GAME",
   GAME_OVER: "GAME_OVER",
+  WAITING_CONFIRMATION: "WAITING_CONFIRMATION",
 };
 
 export const playAudio = (path, callback) => {
@@ -49,8 +51,11 @@ export const useGameStore = create(
     wrongAnswers: 0,
     lives: 3,
     maxLives: 3,
-    startGame: ({ mode }) => {
-      const level = generateGameLevel({ nbStages: 10 });
+    isProcessingWin: false,
+    hasProcessedWin: false,
+
+    startGame: async ({ mode }) => {
+      const level = generateGameLevel({ nbStages: 5 });
       const currentKana = level[0].find((kana) => kana.correct);
       playAudio("start", () => {
         playAudio(`kanas/${currentKana.name}`);
@@ -63,12 +68,33 @@ export const useGameStore = create(
         mode,
         wrongAnswers: 0,
         lives: 3,
+        hasProcessedWin: false,
       });
     },
+
     nextStage: () => {
       set((state) => {
         if (state.currentStage + 1 === state.level.length) {
           playAudio("congratulations");
+          set({ isProcessingWin: true });
+          
+          // Handle game win
+          const gameType = state.mode === "hiragana" ? 0 : 1;
+          web3Service.onGameWon(window.ethereum.selectedAddress, gameType)
+            .then(() => {
+              set({ 
+                isProcessingWin: false,
+                hasProcessedWin: true
+              });
+            })
+            .catch((error) => {
+              console.error("Error processing win:", error);
+              set({ 
+                isProcessingWin: false,
+                hasProcessedWin: false
+              });
+            });
+
           return {
             currentStage: 0,
             currentKana: null,
@@ -88,11 +114,14 @@ export const useGameStore = create(
         return { currentStage, currentKana, lastWrongKana: null };
       });
     },
+
     goToMenu: () => {
       set({
         gameState: gameStates.MENU,
+        hasProcessedWin: false,
       });
     },
+
     loseLife: () => {
       set((state) => {
         const newLives = state.lives - 1;
@@ -112,6 +141,7 @@ export const useGameStore = create(
         return { lives: newLives };
       });
     },
+
     kanaTouched: (kana) => {
       const currentKana = get().currentKana;
       if (currentKana.name === kana.name) {
@@ -142,6 +172,7 @@ export const useGameStore = create(
         });
       }
     },
+
     // CHARACTER CONTROLLER
     characterState: "Idle",
     setCharacterState: (characterState) =>

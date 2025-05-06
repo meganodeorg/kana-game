@@ -10,9 +10,8 @@ import { Leva } from "leva";
 import { Suspense, useMemo } from "react";
 import { Experience } from "./components/Experience";
 import { Menu } from "./components/Menu";
-import { LivesDisplay } from "./components/LivesDisplay";
-import { createConfig, WagmiProvider } from "wagmi";
-import { RainbowKitProvider, getDefaultWallets } from '@rainbow-me/rainbowkit';
+import { WagmiProvider } from "wagmi";
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { config } from './config/wagmi';
 import '@rainbow-me/rainbowkit/styles.css';
@@ -74,7 +73,6 @@ function GameContent() {
       ) : (
         <KeyboardControls map={map}>
           <Leva hidden />
-          <LivesDisplay />
           <Canvas shadows camera={{ position: [0, 20, 14], fov: 42 }}>
             <color attach="background" args={["#e3daf7"]} />
             <Suspense>
@@ -95,7 +93,7 @@ function App() {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
+        <RainbowKitProvider modalSize="compact">
           <GameContent />
         </RainbowKitProvider>
       </QueryClientProvider>
