@@ -1,4 +1,6 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useEffect } from 'react';
+import { useAccount, useConnect } from 'wagmi';
 import styled from 'styled-components';
 
 const StyledConnectButton = styled.div`
@@ -9,6 +11,30 @@ const StyledConnectButton = styled.div`
 `;
 
 export function WalletConnect() {
+  const { isConnected } = useAccount();
+  const { connect, connectors } = useConnect();
+
+  useEffect(() => {
+    // Check if there's a previously connected wallet
+    const lastConnector = localStorage.getItem('lastConnector');
+    if (!isConnected && lastConnector) {
+      const connector = connectors.find(c => c.id === lastConnector);
+      if (connector) {
+        connect({ connector });
+      }
+    }
+  }, [isConnected, connect, connectors]);
+
+  // Save the last used connector
+  useEffect(() => {
+    if (isConnected) {
+      const currentConnector = connectors.find(c => c.connected);
+      if (currentConnector) {
+        localStorage.setItem('lastConnector', currentConnector.id);
+      }
+    }
+  }, [isConnected, connectors]);
+
   return (
     <StyledConnectButton>
       <ConnectButton 
