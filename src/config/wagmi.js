@@ -45,7 +45,14 @@ const config = getDefaultConfig({
     name: 'Kana Game',
     description: 'Learn Japanese Kana characters through gameplay',
     url: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173',
-    icons: [typeof window !== 'undefined' ? window.location.origin + '/favicon.ico' : 'http://localhost:5173/favicon.ico']
+    icons: [
+      '/android-chrome-192x192.png',
+      '/android-chrome-512x512.png',
+      '/apple-touch-icon.png',
+      '/favicon-32x32.png',
+      '/favicon-16x16.png',
+      '/favicon.ico'
+    ]
   }
 });
 
