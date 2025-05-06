@@ -30,28 +30,23 @@ const monadTestnet = {
 
 const projectId = 'd057bc1fd9c61c8829800d326fe01250';
 
-// Ensure single initialization
-let config = null;
-
-if (!config) {
-  // Create RainbowKit config
-  config = getDefaultConfig({
-    appName: 'Kana Game',
-    projectId,
-    chains: [monadTestnet],
-    transports: {
-      [monadTestnet.id]: http()
-    },
-    ssr: false,
-    initialChain: monadTestnet,
-    modalSize: 'compact',
-    metadata: {
-      name: 'Kana Game',
-      description: 'Learn Japanese Kana characters through gameplay',
-      url: window?.location?.origin || 'http://localhost:5173',
-      icons: [(window?.location?.origin || 'http://localhost:5173') + '/favicon.ico']
-    }
-  });
-}
+// Create RainbowKit config
+const config = getDefaultConfig({
+  appName: 'Kana Game',
+  projectId,
+  chains: [monadTestnet],
+  transports: {
+    [monadTestnet.id]: http()
+  },
+  ssr: false,
+  initialChain: monadTestnet,
+  modalSize: 'compact',
+  metadata: {
+    name: 'Kana Game',
+    description: 'Learn Japanese Kana characters through gameplay',
+    url: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173',
+    icons: [typeof window !== 'undefined' ? window.location.origin + '/favicon.ico' : 'http://localhost:5173/favicon.ico']
+  }
+});
 
 export { config };
