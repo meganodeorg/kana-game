@@ -18,6 +18,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { WalletConnect } from './components/WalletConnect';
 import { ConnectPrompt } from './components/ConnectPrompt';
 import { useAccount } from 'wagmi';
+import { Analytics } from "@vercel/analytics/react"
 import styled from 'styled-components';
 
 // Create a client
@@ -91,13 +92,16 @@ function GameContent() {
 
 function App() {
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider modalSize="compact">
-          <GameContent />
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <>
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider modalSize="compact">
+            <GameContent />
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+      <Analytics />
+    </>
   );
 }
 
