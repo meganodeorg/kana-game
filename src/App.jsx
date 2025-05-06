@@ -74,7 +74,6 @@ function GameContent() {
       ) : (
         <KeyboardControls map={map}>
           <Leva hidden />
-          <Analytics />
           <Canvas shadows camera={{ position: [0, 20, 14], fov: 42 }}>
             <color attach="background" args={["#e3daf7"]} />
             <Suspense>
@@ -93,13 +92,16 @@ function GameContent() {
 
 function App() {
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider modalSize="compact">
-          <GameContent />
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <>
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider modalSize="compact">
+            <GameContent />
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+      <Analytics />
+    </>
   );
 }
 
