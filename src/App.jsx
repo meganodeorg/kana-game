@@ -18,6 +18,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { WalletConnect } from './components/WalletConnect';
 import { ConnectPrompt } from './components/ConnectPrompt';
 import { useAccount } from 'wagmi';
+import { Analytics } from "@vercel/analytics/react"
 import styled from 'styled-components';
 
 // Create a client
@@ -73,6 +74,7 @@ function GameContent() {
       ) : (
         <KeyboardControls map={map}>
           <Leva hidden />
+          <Analytics />
           <Canvas shadows camera={{ position: [0, 20, 14], fov: 42 }}>
             <color attach="background" args={["#e3daf7"]} />
             <Suspense>
