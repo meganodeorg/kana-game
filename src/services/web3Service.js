@@ -9,7 +9,6 @@ class Web3Service {
     }
 
     async getProvider() {
-        // Wait for ethereum object to be injected
         let retries = 0;
         while (typeof window.ethereum === 'undefined' && retries < 10) {
             await new Promise(resolve => setTimeout(resolve, 100));
@@ -44,6 +43,18 @@ class Web3Service {
             return true;
         } catch (error) {
             console.error("Error starting game:", error);
+            throw error;
+        }
+    }
+
+    async onGameWon(playerAddress, gameType) {
+        try {
+            const contract = await this.getContract();
+            const tx = await contract.onGameWon(playerAddress, gameType);
+            await tx.wait();
+            return true;
+        } catch (error) {
+            console.error("Error handling game win:", error);
             throw error;
         }
     }

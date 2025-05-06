@@ -1,10 +1,10 @@
-import { gameStates, useGameStore } from "../store";
-import { useAccount } from 'wagmi';
-import { web3Service } from '../services/web3Service';
-import styled from 'styled-components';
-import { useState } from 'react';
+import { useGameStore, gameStates } from "../store";
+import styled from "styled-components";
+import { web3Service } from "../services/web3Service";
+import { useState } from "react";
+import { useAccount } from "wagmi";
 
-const MenuContainer = styled.div`
+const Container = styled.div`
   position: fixed;
   top: 50%;
   left: 50%;
@@ -23,7 +23,7 @@ const MenuContainer = styled.div`
 
 const Title = styled.h1`
   margin: 0 0 1rem 0;
-  color: #2d3748;
+  color: ${props => props.$success ? '#48bb78' : '#e53e3e'};
   font-size: 2.5rem;
   font-weight: 700;
   letter-spacing: -0.5px;
@@ -73,102 +73,69 @@ const Button = styled.button`
   }
 `;
 
-const Credit = styled.p`
-  margin: 0;
-  color: #718096;
-  font-size: 0.9rem;
-
-  a {
-    color: #6b46c1;
-    text-decoration: none;
-    font-weight: 500;
-    
-    &:hover {
-      text-decoration: underline;
-    }
-  }
+const Score = styled.div`
+  color: #4a5568;
+  font-size: 1.2rem;
+  margin: 1rem 0;
+  font-weight: 600;
 `;
 
 const ErrorMessage = styled.div`
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #fc8181;
-  color: white;
-  padding: 12px 24px;
+  background: #fed7d7;
+  color: #c53030;
+  padding: 0.75rem 1rem;
   border-radius: 8px;
   font-weight: 500;
+  margin-top: 1rem;
+`;
+
+const LoadingOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 1000;
-  animation: slideUp 0.3s ease;
-
-  @keyframes slideUp {
-    from {
-      transform: translate(-50%, 100%);
-      opacity: 0;
-    }
-    to {
-      transform: translate(-50%, 0);
-      opacity: 1;
-    }
-  }
-`;
-
-const GameOverContainer = styled(MenuContainer)`
-  h1 {
-    color: ${props => props.$success ? '#48bb78' : '#e53e3e'};
-  }
-`;
-
-const GameOverButtons = styled(ButtonContainer)`
-  flex-wrap: wrap;
-  gap: 1rem;
   
-  button {
-    flex: 1;
-    min-width: 160px;
+  div {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    color: #2d3748;
+    font-weight: 600;
   }
 `;
 
-const PriceInfo = styled.div`
-  margin: -1rem 0 1.5rem;
-  color: #718096;
-  font-size: 0.9rem;
-  font-weight: 500;
-`;
-
-export function Menu() {
-  const { startGame, gameState, goToMenu, lives } = useGameStore((state) => ({
-    startGame: state.startGame,
-    gameState: state.gameState,
-    goToMenu: state.goToMenu,
-    lives: state.lives,
-  }));
+export const Menu = () => {
+  const gameState = useGameStore((state) => state.gameState);
+  const startGame = useGameStore((state) => state.startGame);
+  const goToMenu = useGameStore((state) => state.goToMenu);
+  const wrongAnswers = useGameStore((state) => state.wrongAnswers);
+  const isProcessingWin = useGameStore((state) => state.isProcessingWin);
+  const hasProcessedWin = useGameStore((state) => state.hasProcessedWin);
+  const lives = useGameStore((state) => state.lives);
   const { isConnected } = useAccount();
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleStartGame = async (mode) => {
     if (!isConnected) {
       setError("Please connect your wallet first!");
-      setTimeout(() => setError(null), 3000);
       return;
     }
 
     setIsLoading(true);
-    setError(null);
-
+    setError("");
+    
     try {
-      // Call smart contract (0 for HIRAGANA, 1 for KATAKANA)
-      const gameType = mode === "hiragana" ? 0 : 1;
-      await web3Service.startGame(gameType);
-      
-      // If payment successful, start the game
+      await web3Service.startGame(mode === "hiragana" ? 0 : 1);
       startGame({ mode });
     } catch (err) {
-      console.error("Error starting game:", err);
       setError(err.message || "Failed to start game. Please try again.");
-      setTimeout(() => setError(null), 3000);
     } finally {
       setIsLoading(false);
     }
@@ -176,7 +143,7 @@ export function Menu() {
 
   if (gameState === gameStates.MENU) {
     return (
-      <MenuContainer>
+      <Container>
         <Title>Kana Game</Title>
         <Subtitle>What do you want to practice today?</Subtitle>
         <ButtonContainer>
@@ -193,52 +160,71 @@ export function Menu() {
             {isLoading ? "Processing..." : "Katakana"}
           </Button>
         </ButtonContainer>
-        <Credit>
-          Forked from{" "}
-          <a href="https://github.com/wass08" target="_blank" rel="noopener noreferrer">
-            Wawa Sensei
-          </a>
-        </Credit>
         {error && <ErrorMessage>{error}</ErrorMessage>}
-      </MenuContainer>
+      </Container>
     );
   }
 
   if (gameState === gameStates.GAME_OVER) {
+    const hasWon = lives > 0;
+    
     return (
-      <GameOverContainer $success={lives > 0}>
-        <Title>{lives > 0 ? "Congratulations!" : "Game Over!"}</Title>
+      <Container>
+        <Title $success={hasWon}>
+          {hasWon ? "Congratulations! 🎉" : "Game Over"}
+        </Title>
         <Subtitle>
-          {lives > 0 
-            ? "You have completed the lesson!" 
-            : "You lost all your lives."}
+          {hasWon 
+            ? hasProcessedWin 
+              ? "You've mastered the lesson!" 
+              : "Please wait while we process your achievement..."
+            : "You lost all your lives. Want to try again?"}
         </Subtitle>
-        {!lives > 0 && (
-          <PriceInfo>
-            Pay 0.01 ETH to play again
-          </PriceInfo>
+        
+        {wrongAnswers > 0 && (
+          <Score>Wrong Answers: {wrongAnswers}</Score>
         )}
-        <GameOverButtons>
-          <Button 
-            onClick={() => handleStartGame("hiragana")}
-            disabled={isLoading || !isConnected}
-          >
-            {isLoading ? "Processing..." : "Play Hiragana"}
-          </Button>
-          <Button 
-            onClick={() => handleStartGame("katakana")}
-            disabled={isLoading || !isConnected}
-          >
-            {isLoading ? "Processing..." : "Play Katakana"}
-          </Button>
-          <Button onClick={goToMenu}>
-            Back to Menu
-          </Button>
-        </GameOverButtons>
+
+        {!hasWon && !isProcessingWin && (
+          <div>
+            <Subtitle>Pay 0.01 ETH to play again</Subtitle>
+            <ButtonContainer>
+              <Button 
+                onClick={() => handleStartGame("hiragana")}
+                disabled={isLoading || !isConnected}
+              >
+                {isLoading ? "Processing..." : "Try Hiragana"}
+              </Button>
+              <Button 
+                onClick={() => handleStartGame("katakana")}
+                disabled={isLoading || !isConnected}
+              >
+                {isLoading ? "Processing..." : "Try Katakana"}
+              </Button>
+            </ButtonContainer>
+          </div>
+        )}
+
+        {hasWon && hasProcessedWin && (
+          <ButtonContainer>
+            <Button onClick={goToMenu}>
+              Play Again
+            </Button>
+          </ButtonContainer>
+        )}
+
         {error && <ErrorMessage>{error}</ErrorMessage>}
-      </GameOverContainer>
+      </Container>
+    );
+  }
+
+  if (isProcessingWin) {
+    return (
+      <LoadingOverlay>
+        <div>Processing your achievement... Please confirm the transaction 🎮</div>
+      </LoadingOverlay>
     );
   }
 
   return null;
-}
+};
